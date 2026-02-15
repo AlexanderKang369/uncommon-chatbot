@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>언패턴 Inc. — 노션 가이드 챗봇</title>
+    <meta name="description" content="언패턴 Inc. 노션 워크스페이스에 대한 모든 질문에 답합니다.">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+
+<body>
+
+    <!-- Background Effects -->
+    <div class="bg-effects">
+        <div class="bg-orb bg-orb-1"></div>
+        <div class="bg-orb bg-orb-2"></div>
+        <div class="bg-orb bg-orb-3"></div>
+    </div>
+
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="logo-badge">
+                <span class="logo-dot"></span>
+                NOTION GUIDE BOT
+            </div>
+            <h1 class="app-title">언패턴 Inc. 가이드</h1>
+            <p class="app-subtitle">노션 워크스페이스에 대한 모든 것을 알려드립니다</p>
+        </header>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions" id="quickActions">
+            <button class="quick-btn" onclick="askQuestion('회사 개요 알려줘')">🏢 회사 소개</button>
+            <button class="quick-btn" onclick="askQuestion('전체 DB 목록 보여줘')">🗃️ DB 목록</button>
+            <button class="quick-btn" onclick="askQuestion('설계 아키텍처 설명해줘')">🏗️ 아키텍처</button>
+            <button class="quick-btn" onclick="askQuestion('WBS 시스템이 뭐야?')">📋 WBS</button>
+            <button class="quick-btn" onclick="askQuestion('채용 시스템 어떻게 구성되어 있어?')">👥 채용</button>
+            <button class="quick-btn" onclick="askQuestion('채널 성과 DB 알려줘')">📡 채널 성과</button>
+            <button class="quick-btn" onclick="askQuestion('Notion API 설정 알려줘')">⚙️ API 연동</button>
+            <button class="quick-btn" onclick="askQuestion('시스템 완성도 알려줘')">📊 현황</button>
+        </div>
+
+        <!-- Category Tabs -->
+        <div class="category-tabs" id="categoryTabs"></div>
+
+        <!-- Chat Area -->
+        <div class="chat-container" id="chatContainer"></div>
+
+        <!-- Input Area -->
+        <div class="input-area">
+            <div class="input-wrapper">
+                <input type="text" class="input-field" id="chatInput" placeholder="무엇이든 물어보세요... (예: 프로젝트 DB 구조)"
+                    autocomplete="off">
+                <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+                    ↑
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="knowledge.js"></script>
+    <script>
+        // ═══════════════════════════════════════
+        // App State
+        // ═══════════════════════════════════════
+        const engine = new SearchEngine(KNOWLEDGE_BASE);
+        const chatContainer = document.getElementById('chatContainer');
+        const chatInput = document.getElementById('chatInput');
+        let activeCategory = null;
+
+        // ═══════════════════════════════════════
+        // Init
+        // ═══════════════════════════════════════
+        function init() {
+            buildCategoryTabs();
+            showWelcome();
+            chatInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+        }
+
+        // ═══════════════════════════════════════
+        // Category Tabs
+        // ═══════════════════════════════════════
+        function buildCategoryTabs() {
+            const tabs = document.getElementById('categoryTabs');
+            const categories = engine.getCategories();
+
+            const allTab = document.createElement('button');
+            allTab.className = 'cat-tab active';
+            allTab.textContent = '전체';
+            allTab.onclick = () => selectCategory(null, allTab);
+            tabs.appendChild(allTab);
+
+            categories.forEach(cat => {
+                const tab = document.createElement('button');
+                tab.className = 'cat-tab';
+                tab.textContent = cat;
+                tab.onclick = () => selectCategory(cat, tab);
+                tabs.appendChild(tab);
+            });
+        }
+
+        function selectCategory(category, tabEl) {
+            document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
+            tabEl.classList.add('active');
+            activeCategory = category;
+
+            if (category) {
+                showCategoryResults(category);
+            }
+        }
+
+        function showCategoryResults(category) {
+            const items = engine.getByCategory(category);
+            chatContainer.innerHTML = '';
+
+            const div = document.createElement('div');
+            div.className = 'category-results';
+
+            items.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'result-item';
+                card.innerHTML = `
+          <div class="result-item-q">${item.question}</div>
+          <div class="result-item-cat">${item.category}</div>
+        `;
+                card.onclick = () => askQuestion(item.question);
+                div.appendChild(card);
+            });
+
+            chatContainer.appendChild(div);
+            scrollToBottom();
+        }
+
+        // ═══════════════════════════════════════
+        // Welcome
+        // ═══════════════════════════════════════
+        function showWelcome() {
+            const welcomeData = [
+                { emoji: '🏢', title: '회사 & 브랜드', desc: '언패턴 Inc. 소개, 12개 브랜드, 10개 제품', q: '언패턴 Inc.는 어떤 회사인가요?' },
+                { emoji: '🗃️', title: 'DB 구조', desc: '52개+ 데이터베이스의 스키마와 속성', q: '전체 DB 목록 보여줘' },
+                { emoji: '🔗', title: 'Relation 체인', desc: 'OKR→KPI→프로젝트→업무 데이터 흐름', q: 'DB 간 Relation 체인 알려줘' },
+                { emoji: '📋', title: 'WBS 시스템', desc: '제품 런칭 태스크 자동화', q: 'WBS 시스템이란?' },
+                { emoji: '👥', title: '채용 시스템', desc: '채용 공고→지원자→평가 파이프라인', q: '채용 시스템 어떻게 구성되어 있어?' },
+                { emoji: '📡', title: '채널 성과', desc: 'ROAS/CPA 자동 계산과 신호등 시스템', q: '채널 성과 DB 알려줘' },
+                { emoji: '⚙️', title: '자동화 도구', desc: 'API, MCP Server, n8n 워크플로우', q: 'n8n 자동화 워크플로우 알려줘' },
+                { emoji: '📊', title: '운영 현황', desc: '시스템 완성도와 남은 작업', q: '시스템 완성도 알려줘' }
+            ];
+
+            addBotMessage(`안녕하세요! 👋 **언패턴 Inc. 노션 가이드봇**입니다.
+
+워크스페이스의 구조, DB 스키마, 자동화 시스템 등 무엇이든 물어보세요.
+
+아래 주제를 클릭하거나 직접 질문을 입력해 주세요:`, welcomeData);
+        }
+
+        // ═══════════════════════════════════════
+        // Messages
+        // ═══════════════════════════════════════
+        function addUserMessage(text) {
+            const msg = document.createElement('div');
+            msg.className = 'message user';
+            msg.innerHTML = `
+        <div class="message-avatar">👤</div>
+        <div class="message-bubble">${escapeHtml(text)}</div>
+      `;
+            chatContainer.appendChild(msg);
+            scrollToBottom();
+        }
+
+        function addBotMessage(text, welcomeCards = null) {
+            const msg = document.createElement('div');
+            msg.className = 'message bot';
+
+            let bubbleContent = renderMarkdown(text);
+
+            if (welcomeCards) {
+                bubbleContent += `<div class="welcome-grid">`;
+                welcomeCards.forEach(card => {
+                    bubbleContent += `
+            <div class="welcome-card" onclick="askQuestion('${card.q}')">
+              <div class="welcome-card-emoji">${card.emoji}</div>
+              <div class="welcome-card-title">${card.title}</div>
+              <div class="welcome-card-desc">${card.desc}</div>
+            </div>
+          `;
+                });
+                bubbleContent += `</div>`;
+            }
+
+            msg.innerHTML = `
+        <div class="message-avatar">🤖</div>
+        <div class="message-bubble">${bubbleContent}</div>
+      `;
+            chatContainer.appendChild(msg);
+            scrollToBottom();
+        }
+
+        function addBotMessageWithRelated(text, relatedItems) {
+            const msg = document.createElement('div');
+            msg.className = 'message bot';
+
+            let bubbleContent = renderMarkdown(text);
+
+            if (relatedItems && relatedItems.length > 0) {
+                bubbleContent += `<div class="related-questions">`;
+                relatedItems.forEach(item => {
+                    bubbleContent += `<button class="related-q-btn" onclick="askQuestion('${item.question}')">${item.question}</button>`;
+                });
+                bubbleContent += `</div>`;
+            }
+
+            msg.innerHTML = `
+        <div class="message-avatar">🤖</div>
+        <div class="message-bubble">${bubbleContent}</div>
+      `;
+            chatContainer.appendChild(msg);
+            scrollToBottom();
+        }
+
+        function showTyping() {
+            const msg = document.createElement('div');
+            msg.className = 'message bot';
+            msg.id = 'typing-msg';
+            msg.innerHTML = `
+        <div class="message-avatar">🤖</div>
+        <div class="message-bubble">
+          <div class="typing-indicator">
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+          </div>
+        </div>
+      `;
+            chatContainer.appendChild(msg);
+            scrollToBottom();
+        }
+
+        function removeTyping() {
+            const el = document.getElementById('typing-msg');
+            if (el) el.remove();
+        }
+
+        // ═══════════════════════════════════════
+        // Send & Process
+        // ═══════════════════════════════════════
+        function sendMessage() {
+            const text = chatInput.value.trim();
+            if (!text) return;
+
+            chatInput.value = '';
+            addUserMessage(text);
+            processQuery(text);
+        }
+
+        function askQuestion(question) {
+            addUserMessage(question);
+            processQuery(question);
+        }
+
+        function processQuery(query) {
+            showTyping();
+
+            setTimeout(() => {
+                removeTyping();
+
+                const results = engine.search(query);
+
+                if (results.length === 0) {
+                    addBotMessage(`죄송합니다, **"${query}"**에 대한 정보를 찾지 못했습니다. 😅
+
+다음과 같은 주제로 질문해 보세요:
+- 회사 개요, 브랜드, 제품
+- DB 구조, 속성, Relation
+- WBS, 채용, 채널 성과
+- API, MCP, n8n 자동화
+- 시스템 완성도, 남은 작업`);
+                    return;
+                }
+
+                const topResult = results[0];
+                const relatedResults = results.slice(1, 4).filter(r => r.score > 3);
+
+                addBotMessageWithRelated(topResult.answer, relatedResults);
+            }, 400 + Math.random() * 300);
+        }
+
+        // ═══════════════════════════════════════
+        // Helpers
+        // ═══════════════════════════════════════
+        function renderMarkdown(text) {
+            if (typeof marked !== 'undefined') {
+                marked.setOptions({
+                    breaks: true,
+                    gfm: true
+                });
+                return marked.parse(text);
+            }
+            // Fallback if marked.js not loaded
+            return text
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/`([^`]+)`/g, '<code>$1</code>')
+                .replace(/\n/g, '<br>');
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function scrollToBottom() {
+            setTimeout(() => {
+                window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+            }, 50);
+        }
+
+        // ═══════════════════════════════════════
+        // Start!
+        // ═══════════════════════════════════════
+        init();
+    </script>
+</body>
+
+</html>
