@@ -202,11 +202,24 @@
             scrollToBottom();
         }
 
-        function addBotMessageWithRelated(text, relatedItems) {
+        function addBotMessageWithRelated(text, relatedItems, notionUrl = null) {
             const msg = document.createElement('div');
             msg.className = 'message bot';
 
             let bubbleContent = renderMarkdown(text);
+
+            if (notionUrl) {
+                bubbleContent += `<div class="notion-link-container">
+                    <a href="${notionUrl}" target="_blank" rel="noopener noreferrer" class="notion-link-btn">
+                        <svg width="16" height="16" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M6.017 4.313l55.333-4.087c6.797-.583 8.543-.19 12.817 2.917l17.663 12.443c2.913 2.14 3.883 2.723 3.883 5.053v68.243c0 4.277-1.553 6.807-6.99 7.193L24.467 99.967c-4.08.193-6.023-.39-8.16-3.113L3.3 79.94c-2.333-3.113-3.3-5.443-3.3-8.167V11.113c0-3.497 1.553-6.413 6.017-6.8z" fill="#fff"/>
+                            <path fill-rule="evenodd" clip-rule="evenodd" d="M61.35.227L6.017 4.313C1.553 4.7 0 7.617 0 11.113v60.66c0 2.723.967 5.053 3.3 8.167l12.81 16.913c2.137 2.723 4.08 3.307 8.16 3.113L88.723 96.08c5.437-.387 6.99-2.917 6.99-7.193V20.64c0-2.21-.865-2.864-3.45-4.733L74.167 3.14C69.893.137 68.147-.257 61.35.227zM25.723 19.773c-5.433.413-6.673.507-9.773-1.947L7.953 11.3c-.97-.78-1.553-1.753-1.553-2.917 0-1.363 1.17-2.527 3.11-2.723l52.503-3.887c4.47-.393 6.793.97 8.543 2.333l10.69 7.587c.39.193 1.36 1.363 1.36 2.53 0 1.36-1.167 2.527-2.53 2.72L25.723 19.773zm-4.47 71.6V29.12c0-2.527.78-3.697 3.11-3.893l58.3-3.5c2.14-.193 3.11 1.167 3.11 3.693v62.057c0 2.53-.387 4.667-3.887 4.867L31.45 95.467c-3.5.193-5.023-.97-5.023-4.093h-5.173zM78.42 32.43c.39 1.753 0 3.503-1.753 3.697l-2.917.583v46.047c-2.527 1.363-4.86 2.14-6.797 2.14-3.113 0-3.89-.973-6.21-3.887L42.127 53.78v25.87l6.017 1.36s0 3.5-4.867 3.5l-13.397.78c-.39-.78 0-2.723 1.36-3.11l3.5-.967V44.377L30.86 44c-.39-1.75.583-4.277 3.3-4.473l14.367-.967 19.243 29.4V45.357l-5.047-.583c-.39-2.143 1.163-3.7 3.103-3.89l13.597-.453z" fill="#000"/>
+                        </svg>
+                        노션에서 보기
+                        <span class="notion-link-arrow">→</span>
+                    </a>
+                </div>`;
+            }
 
             if (relatedItems && relatedItems.length > 0) {
                 bubbleContent += `<div class="related-questions">`;
@@ -287,7 +300,7 @@
                 const topResult = results[0];
                 const relatedResults = results.slice(1, 4).filter(r => r.score > 3);
 
-                addBotMessageWithRelated(topResult.answer, relatedResults);
+                addBotMessageWithRelated(topResult.answer, relatedResults, topResult.notionUrl || null);
             }, 400 + Math.random() * 300);
         }
 
