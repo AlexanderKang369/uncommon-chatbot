@@ -10,6 +10,7 @@ const KNOWLEDGE_BASE = [
         category: "회사 개요",
         keywords: ["회사", "언패턴", "온생", "D2C", "이커머스", "대표", "강승재", "천영근", "사업", "소개", "about"],
         question: "언패턴 Inc.는 어떤 회사인가요?",
+        notionUrl: "https://www.notion.so/2f0f51b2a9c5809f9336ee86cf9c6f80",
         answer: `**언패턴 Inc.** (구 온생 Inc.)는 D2C 이커머스 기업입니다.
 
 📌 **기본 정보**
@@ -130,6 +131,7 @@ const KNOWLEDGE_BASE = [
         category: "핵심 DB 스키마",
         keywords: ["브랜드", "BM", "중앙", "허브", "SSoT", "전체 브랜드"],
         question: "전체 브랜드/BM DB의 구조는?",
+        notionUrl: "https://www.notion.so/2fff51b2a9c58102ad9dc0a177672efd",
         answer: `**전체 브랜드/BM DB** — 🔑 중앙 허브 (SSoT)
 
 거의 모든 DB가 이 DB를 참조하는 Single Source of Truth입니다.
@@ -148,6 +150,7 @@ DB ID: \`2fff51b2-a9c5-8102-ad9d-c0a177672efd\``
         category: "핵심 DB 스키마",
         keywords: ["연간", "경영목표", "목표", "매출", "순익", "2026", "2027", "2028", "2029"],
         question: "연간 경영 목표 DB 구조는?",
+        notionUrl: "https://www.notion.so/2f9f51b2a9c5801f9483e8a3ca59448a",
         answer: `**📅 연간 경영 목표 DB** (5건, 15개 속성)
 
 2026~2029 경영목표를 관리합니다.
@@ -169,6 +172,7 @@ DB ID: \`2f9f51b2-a9c5-801f-9483-e8a3ca59448a\``
         category: "핵심 DB 스키마",
         keywords: ["KPI", "브랜드별", "제품", "제품KPI", "self-relation", "트리", "계층", "순익", "배분"],
         question: "브랜드별 제품 KPI DB 구조는?",
+        notionUrl: "https://www.notion.so/2faf51b2a9c580fd937efe4dfca2c2bc",
         answer: `**📦 브랜드별 제품 KPI DB** (74건, 15개 속성)
 
 브랜드 목표 + 제품 KPI를 통합 관리합니다.
@@ -191,6 +195,7 @@ DB ID: \`2faf51b2-a9c5-80fd-937e-fe4dfca2c2bc\``
         category: "핵심 DB 스키마",
         keywords: ["프로젝트", "프로젝트DB", "진행률", "유형", "독립업무", "목표연동"],
         question: "프로젝트 DB 구조는?",
+        notionUrl: "https://www.notion.so/2f1f51b2a9c580abb697c39fd8a72566",
         answer: `**프로젝트 DB** (22건+, 10개 속성)
 
 📋 **속성**:
@@ -212,6 +217,7 @@ DB ID: \`2f1f51b2-a9c5-80ab-b697-c39fd8a72566\``
         category: "핵심 DB 스키마",
         keywords: ["세부업무", "업무", "선행", "후속", "의존성", "세부 업무 DB"],
         question: "세부 업무 DB 구조는?",
+        notionUrl: "https://www.notion.so/2f1f51b2a9c580058de7d043769c00ee",
         answer: `**세부 업무 DB** (76건+, 9개 속성)
 
 📋 **속성**:
@@ -255,6 +261,7 @@ KPI DB에 총 광고비·총 매출 rollup으로 자동 집계됩니다.`
         category: "핵심 DB 스키마",
         keywords: ["Finance", "재무", "비용", "지출", "정산", "정산그룹"],
         question: "Finance DB 구조는?",
+        notionUrl: "https://www.notion.so/2fef51b2a9c580159251ccaad0dc8efe",
         answer: `**Finance DB** — 재무/비용 추적
 
 📋 **핵심 속성**:
